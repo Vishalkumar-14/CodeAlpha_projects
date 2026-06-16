@@ -10,7 +10,23 @@ training_songs = [
     "bach/bwv66.6",
     "bach/bwv67.4",
     "bach/bwv69.6",
-    "bach/bwv277"
+    "bach/bwv277",
+    "bach/bwv248.9",
+    "bach/bwv347",
+    "bach/bwv153.1",
+    "bach/bwv244.10",
+    "bach/bwv244.37",
+    "bach/bwv244.46",
+    "bach/bwv245.14",
+    "bach/bwv245.17",
+    "bach/bwv245.28",
+    "bach/bwv245.40",
+    "bach/bwv248.12",
+    "bach/bwv248.23",
+    "bach/bwv248.35",
+    "bach/bwv248.42",
+    "bach/bwv248.53",
+    "bach/bwv248.64"
 ]
 
 print("Starting music preprocessing...\n")
