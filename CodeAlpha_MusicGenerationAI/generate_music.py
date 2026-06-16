@@ -1,57 +1,155 @@
 import pickle
 import random
+import numpy as np
+
+from tensorflow.keras.models import load_model
+
 from music21 import stream
 from music21 import note
 from music21 import chord
 
-with open("notes.pkl", "rb") as notes_file:
-    all_notes = pickle.load(notes_file)
+print("Loading trained model...")
 
-generated_melody = []
+trained_model = load_model(
+    "model/music_model.keras"
+)
+
+with open(
+    "model/note_mapping.pkl",
+    "rb"
+) as mapping_file:
+
+    saved_data = pickle.load(
+        mapping_file
+    )
+
+note_to_number = saved_data[
+    "note_to_number"
+]
+
+unique_notes = saved_data[
+    "unique_notes"
+]
+
+number_to_note = {
+    value: key
+    for key, value in note_to_number.items()
+}
+
+with open(
+    "notes.pkl",
+    "rb"
+) as notes_file:
+
+    extracted_notes = pickle.load(
+        notes_file
+    )
+
+sequence_length = 50
 
 starting_index = random.randint(
     0,
-    len(all_notes) - 101
+    len(extracted_notes) - sequence_length - 1
 )
 
-current_pattern = all_notes[
-    starting_index:starting_index + 100
+seed_pattern = extracted_notes[
+    starting_index:
+    starting_index + sequence_length
 ]
 
-for _ in range(100):
+network_input = [
+    note_to_number[note]
+    for note in seed_pattern
+]
 
-    next_note = random.choice(current_pattern)
+generated_notes = []
 
-    generated_melody.append(next_note)
+print("Generating music...")
+
+for _ in range(200):
+
+    prediction_input = np.reshape(
+        network_input,
+        (
+            1,
+            len(network_input),
+            1
+        )
+    )
+
+    prediction_input = (
+        prediction_input /
+        float(len(unique_notes))
+    )
+
+    prediction = trained_model.predict(
+        prediction_input,
+        verbose=0
+    )
+
+    predicted_index = np.argmax(
+        prediction
+    )
+
+    predicted_note = number_to_note[
+        predicted_index
+    ]
+
+    generated_notes.append(
+        predicted_note
+    )
+
+    network_input.append(
+        predicted_index
+    )
+
+    network_input = network_input[1:]
 
 output_stream = stream.Stream()
 
 current_offset = 0
 
-for pattern in generated_melody:
+for pattern in generated_notes:
 
-    if "." in pattern or pattern.isdigit():
-
-        notes_in_chord = pattern.split(".")
+    if "." in pattern:
 
         chord_notes = []
 
-        for single_note in notes_in_chord:
+        for chord_note in pattern.split("."):
 
-            new_note = note.Note(int(single_note))
-            chord_notes.append(new_note)
+            new_note = note.Note(
+                int(chord_note)
+            )
 
-        new_chord = chord.Chord(chord_notes)
-        new_chord.offset = current_offset
+            chord_notes.append(
+                new_note
+            )
 
-        output_stream.append(new_chord)
+        generated_chord = chord.Chord(
+            chord_notes
+        )
+
+        generated_chord.offset = (
+            current_offset
+        )
+
+        output_stream.append(
+            generated_chord
+        )
 
     else:
 
-        new_note = note.Note(pattern)
-        new_note.offset = current_offset
+        generated_note = note.Note(
+            pattern
+        )
 
-        output_stream.append(new_note)
+        generated_note.offset = (
+            current_offset
+        )
+
+        output_stream.append(
+            generated_note
+        )
 
     current_offset += 0.5
 
