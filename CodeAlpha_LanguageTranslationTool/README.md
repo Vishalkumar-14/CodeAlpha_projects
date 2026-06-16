@@ -1,21 +1,19 @@
 # 🌍 AI Language Translation Tool
 
-This project was developed as part of the CodeAlpha Artificial Intelligence Internship Program.
+A simple and interactive language translation application developed as part of the CodeAlpha Artificial Intelligence Internship.
 
-The AI Language Translation Tool allows users to translate text between multiple languages through a simple and interactive web interface. The application uses Google Translation services through the Deep Translator library to provide fast and accurate translations.
-
-The main objective of this project was to understand how language translation systems work and how external APIs can be integrated into AI-powered applications.
+The application allows users to translate text between multiple languages using Google Translation services. It provides a clean interface where users can select source and target languages, enter text, and instantly receive translated results.
 
 ---
 
 ## Features
 
 - Translate text between multiple languages
-- Simple and user-friendly interface
-- Real-time translation
-- Input validation for better user experience
+- Easy-to-use Streamlit interface
 - Word count display
-- Supports commonly used languages such as English, Hindi, French, German, Spanish, Japanese, Chinese, Russian, and Italian
+- Input validation
+- Copy translated text
+- Fast and accurate translations
 
 ---
 
@@ -23,7 +21,22 @@ The main objective of this project was to understand how language translation sy
 
 - Python
 - Streamlit
-- Deep Translator (Google Translator API)
+- Deep Translator
+- Google Translation API
+
+---
+
+## Supported Languages
+
+- English
+- Hindi
+- French
+- German
+- Spanish
+- Japanese
+- Chinese
+- Russian
+- Italian
 
 ---
 
@@ -42,25 +55,13 @@ CodeAlpha_LanguageTranslationTool/
 
 ## Installation
 
-1. Clone the repository
-
-```bash
-git clone <repository-link>
-```
-
-2. Move to the project directory
-
-```bash
-cd CodeAlpha_LanguageTranslationTool
-```
-
-3. Install the required dependencies
+Install the required libraries:
 
 ```bash
 pip install -r requirements.txt
 ```
 
-4. Run the application
+Run the application:
 
 ```bash
 streamlit run app.py
@@ -68,48 +69,32 @@ streamlit run app.py
 
 ---
 
-## How It Works
-
-1. The user enters text that needs to be translated.
-2. The user selects the source language and target language.
-3. The application sends the text to the translation service.
-4. The translated text is returned and displayed on the screen.
-
----
-
 ## Learning Outcomes
 
-Through this project, I gained practical experience in:
+Through this project, I learned:
 
-- Building interactive web applications using Streamlit
-- Working with translation APIs
+- How translation APIs work
+- Building web applications with Streamlit
 - Handling user input and validation
+- Working with external Python libraries
 - Creating AI-powered utility applications
-- Organizing and documenting software projects
 
 ---
 
 ## Future Improvements
 
-- Text-to-Speech functionality
-- Translation history
-- Download translated text
-- Additional language support
-- Speech-to-Text integration
-
----
-
-## Screenshots
-
-Add project screenshots inside the `screenshots` folder and include them here.
+- Text-to-Speech Support
+- Speech-to-Text Translation
+- Translation History
+- Download Translated Text
 
 ---
 
 ## Author
 
-**Vishal Kumar**
+Vishal Kumar
 
 B.Tech CSE (AI & ML)  
 Graphic Era Deemed to be University
 
-Project completed as part of the **CodeAlpha Artificial Intelligence Internship Program**.
+CodeAlpha Artificial Intelligence Internship
