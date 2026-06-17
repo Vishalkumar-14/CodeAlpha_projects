@@ -1,0 +1,8 @@
+input_videos/
+output_videos/
+yolov8n.pt
+
+*.mp4
+*.avi
+*.mov
+*.pt
