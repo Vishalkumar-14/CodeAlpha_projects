@@ -1,102 +1,138 @@
-import streamlit as st
-import subprocess
+from ultralytics import YOLO
+import cv2
 import os
-import sys
 
-st.set_page_config(
-    page_title="Object Detection & Tracking",
-    page_icon="🎯",
-    layout="centered"
+print("Loading YOLO model...")
+
+# Get current project directory
+current_directory = os.path.dirname(
+    os.path.abspath(__file__)
 )
 
 # Create folders if they don't exist
-os.makedirs("input_videos", exist_ok=True)
-os.makedirs("output_videos", exist_ok=True)
-
-st.title("🎯 Object Detection and Tracking")
-
-st.write(
-    """
-    Upload a video and run YOLOv8 object detection and tracking.
-    The processed video will be available for download after analysis.
-    """
+input_folder = os.path.join(
+    current_directory,
+    "input_videos"
 )
 
-st.divider()
-
-uploaded_video = st.file_uploader(
-    "Upload a Video",
-    type=["mp4", "avi", "mov"]
+output_folder = os.path.join(
+    current_directory,
+    "output_videos"
 )
 
-if uploaded_video is not None:
+os.makedirs(input_folder, exist_ok=True)
+os.makedirs(output_folder, exist_ok=True)
 
-    input_video_path = "input_videos/sample_video.mp4"
+# Input and output paths
+input_video_path = os.path.join(
+    input_folder,
+    "sample_video.mp4"
+)
 
-    with open(input_video_path, "wb") as video_file:
-        video_file.write(uploaded_video.read())
+output_video_path = os.path.join(
+    output_folder,
+    "tracked_output.mp4"
+)
 
-    st.success("Video uploaded successfully!")
+print("Input Video:", input_video_path)
+print("Output Video:", output_video_path)
 
-    if st.button("Start Detection & Tracking"):
+# Load YOLOv8 model
+object_detector = YOLO("yolov8n.pt")
 
-        current_directory = os.path.dirname(
-            os.path.abspath(__file__)
-        )
+# Open video
+video_capture = cv2.VideoCapture(
+    input_video_path
+)
 
-        tracking_script_path = os.path.join(
-            current_directory,
-            "detect_and_track.py"
-        )
+if not video_capture.isOpened():
 
-        if not os.path.exists(tracking_script_path):
-            st.error(
-                f"detect_and_track.py not found.\n\nExpected path:\n{tracking_script_path}"
-            )
-            st.stop()
+    print(
+        "Error: Unable to open video file."
+    )
 
-        with st.spinner("Processing video... Please wait."):
+    exit()
 
-            process = subprocess.run(
-                [sys.executable, tracking_script_path],
-                capture_output=True,
-                text=True
-            )
+# Video properties
+frame_width = int(
+    video_capture.get(
+        cv2.CAP_PROP_FRAME_WIDTH
+    )
+)
 
-        if process.returncode == 0:
+frame_height = int(
+    video_capture.get(
+        cv2.CAP_PROP_FRAME_HEIGHT
+    )
+)
 
-            output_video_path = (
-                "output_videos/tracked_output.mp4"
-            )
+video_fps = int(
+    video_capture.get(
+        cv2.CAP_PROP_FPS
+    )
+)
 
-            if os.path.exists(output_video_path):
+if video_fps == 0:
+    video_fps = 30
 
-                st.success(
-                    "Object detection and tracking completed successfully!"
-                )
+print("Video opened:", video_capture.isOpened())
+print("Width:", frame_width)
+print("Height:", frame_height)
+print("FPS:", video_fps)
 
-                with open(
-                    output_video_path,
-                    "rb"
-                ) as processed_video:
+# Video writer
+video_writer = cv2.VideoWriter(
+    output_video_path,
+    cv2.VideoWriter_fourcc(*"mp4v"),
+    video_fps,
+    (frame_width, frame_height)
+)
 
-                    st.download_button(
-                        label="📥 Download Processed Video",
-                        data=processed_video,
-                        file_name="tracked_output.mp4",
-                        mime="video/mp4"
-                    )
+processed_frames = 0
 
-            else:
+print(
+    "Starting object detection and tracking..."
+)
 
-                st.error(
-                    "Processing completed but output video was not generated."
-                )
+while True:
 
-        else:
+    frame_available, frame = (
+        video_capture.read()
+    )
 
-            st.error(
-                "An error occurred during processing."
-            )
+    if not frame_available:
+        break
 
-            st.code(process.stderr)
+    processed_frames += 1
+
+    # Run tracking
+    results = object_detector.track(
+        frame,
+        persist=True,
+        verbose=False
+    )
+
+    # Draw detections
+    annotated_frame = (
+        results[0].plot()
+    )
+
+    # Save frame
+    video_writer.write(
+        annotated_frame
+    )
+
+video_capture.release()
+video_writer.release()
+
+print(
+    f"Total frames processed: {processed_frames}"
+)
+
+print(
+    "Tracking completed successfully!"
+)
+
+print(
+    f"Output saved at: {output_video_path}"
+)

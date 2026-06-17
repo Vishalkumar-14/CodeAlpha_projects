@@ -1,6 +1,7 @@
 import streamlit as st
 import subprocess
 import os
+import sys
 
 st.set_page_config(
     page_title="Object Detection & Tracking",
@@ -8,7 +9,7 @@ st.set_page_config(
     layout="centered"
 )
 
-# Create folders automatically
+# Create required folders
 os.makedirs("input_videos", exist_ok=True)
 os.makedirs("output_videos", exist_ok=True)
 
@@ -39,10 +40,27 @@ if uploaded_video is not None:
 
     if st.button("Start Detection & Tracking"):
 
+        current_directory = os.path.dirname(
+            os.path.abspath(__file__)
+        )
+
+        tracking_script = os.path.join(
+            current_directory,
+            "detect_and_track.py"
+        )
+
+        st.write("Script Path:", tracking_script)
+
+        if not os.path.exists(tracking_script):
+            st.error(
+                f"detect_and_track.py not found.\n\n{tracking_script}"
+            )
+            st.stop()
+
         with st.spinner("Processing video... Please wait."):
 
             process = subprocess.run(
-                ["python", "detect_and_track.py"],
+                [sys.executable, tracking_script],
                 capture_output=True,
                 text=True
             )
@@ -74,15 +92,10 @@ if uploaded_video is not None:
             else:
 
                 st.error(
-                    "Processing finished but output video was not found."
+                    "Output video was not generated."
                 )
 
         else:
 
-            st.error(
-                "An error occurred during processing."
-            )
-
-            st.code(
-                process.stderr
-            )
+            st.error("Processing failed.")
+            st.code(process.stderr)
